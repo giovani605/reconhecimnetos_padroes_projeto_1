@@ -5,19 +5,20 @@
 
 import numpy as np
 import pandas as pd
+import  seaborn as sns
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
-import seaborn as sns
-from __future__ import print_function
 
 import math
+import sklearn
 
 from sklearn import tree
 from sklearn.model_selection import train_test_split
+from sklearn.externals.six import StringIO
+from scipy.stats import randint
 
-get_ipython().magic(u'matplotlib inline') #para imprimir no próprio notebook
 
 
 # %matplotlib inline
@@ -276,27 +277,103 @@ full_X = pd.concat([imputed, embarked, family, sex, title] , axis=1)
 full_X.head()
 
 
+# In[]:
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RandomizedSearchCV
+import numpy
+def testarClasficador(clf,DadosX,DadosY):
+    valores = cross_val_score(clf, DadosX, DadosY, cv = 5)
+    mediaAcc = numpy.mean(valores)
+    print("A Media do clf foi: ", mediaAcc)
+    print("Os teste resultaram em: ", valores)
+    return mediaAcc
+
+
+
 # In[19]:
 
 #A PARTIR DAQUI, COMEÇA O PROCESSO DE CLASSIFICAÇÃO!
+
+ResultadosClassficadores = {}
+
+# Arvore de decisão
 
 #A partir apenas das amostras do arquivo train.csv, cria a base de treinamento e teste.
 X = full_X[0:train.shape[0]]
 y = titanic.Survived
 
-X_train, X_test, y_train, y_test = train_test_split(X , y, train_size = .8)
+X_train, X_test, y_train, y_test = train_test_split(X , y, train_size = .75)
 
-clf = tree.DecisionTreeClassifier(criterion='gini')
+clf = tree.DecisionTreeClassifier(criterion='gini', max_depth=3)
 clf = clf.fit(X_train, y_train)
 preditor = clf.predict(X_test)
 
 
+
+acc = sklearn.metrics.accuracy_score(y_test, preditor)
+acc
+
+
+a = tree.plot_tree(clf, feature_names=X.columns.values, class_names=['Dead', 'Survived'], max_depth = 3)
+
+# print da arvore
+'''
+out = StringIO()
+tree.export_graphviz(clf, out_file=out, feature_names=X.columns.values, class_names=y.name, filled=True, rounded=True, special_characters=True)
+graph=pydotplus.graph_from_dot_data(out.getvalue())
+Image(graph.create_png())
+with open('irisDT-RS.png', 'wb') as f:
+    f.write(graph.create_png())    
+Image("irisDT-RS.png") 
+
+'''
+# In[ ]:
+# Knn
+
+
+
 # In[ ]:
 
+# Random Forests
+# random forests sao conjuntos de arvores de decisao com o objetivo de reduzir o overfitting do modelo anterior
+
+from sklearn.ensemble import RandomForestClassifier
+print("Teste Random Forest")
+clfRF = RandomForestClassifier()
+
+# Procurar por parametros otimos
+param_dist = {"criterion":["gini", "entropy"],
+             "min_samples_split": randint(6, 10),
+             "max_depth": randint (8, 10),
+             "min_samples_leaf": randint(2, 6),
+             "max_leaf_nodes": randint(6, 8)}
+
+clfRF =    RandomizedSearchCV(clf, param_dist, n_iter = 100)
+clfRF
+
+
+# testar
+resultadoRandomForets = testarClasficador(clfRF, X,y)
+ResultadosClassficadores["randomForests"] = resultadoRandomForets
 
 
 
-# In[ ]:
+# In[]:
+# Naive Bayes
+from sklearn.naive_bayes import GaussianNB
+print("Teste naive bayes")
+
+gnb = GaussianNB()
+
+resultadoGNB = testarClasficador(gnb,X,y)
+ResultadosClassficadores["naiveBayes"] = resultadoGNB
 
 
+# o naive bayes tem apenas um hyper parametro
+# este parametro eh o var_smoothing
+# vou pesquisar como melhorar ele
 
+#%%
+# In[]:
+# Resumo dos resultados
+ResultadosClassficadores
