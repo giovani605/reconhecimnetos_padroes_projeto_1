@@ -19,6 +19,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.externals.six import StringIO
 from scipy.stats import randint
 
+from sklearn.neighbors import KNeighborsClassifier
+
 # In[]:
 # ignoirar warnming
 # import warnings filter
@@ -331,10 +333,27 @@ with open('irisDT-RS.png', 'wb') as f:
 Image("irisDT-RS.png") 
 
 '''
+# In[]:
+#func para randmonized search
+def buscarParametrosRand(clf,DadosX,DadosY,paramatros,inter,nomeClassificador):
+    randCLF =  RandomizedSearchCV(clf, paramatros, n_iter = inter)
+    randCLF.fit(DadosX,DadosY)
+    print("Melhores parametros encontrados %s para: %s" % (nomeClassificador, randCLF.best_params_))
+    return randCLF
+
+
 # In[ ]:
 # Knn
+clf_KNN = KNeighborsClassifier()
+paramatros = {"n_neighbors": randint(2,10)}
 
 
+randKnn =  buscarParametrosRand(clf_KNN,X,y,paramatros,10,"KNN")
+clf_KNN = randKnn.best_estimator_
+
+# testar
+resultadoKNN= testarClasficador(clf_KNN, X,y)
+ResultadosClassficadores["resultadoKNN"] = resultadoKNN
 
 # In[ ]:
 
@@ -413,6 +432,8 @@ passagemId = test.ix[:,0]
 gerarSubmicoes(clf, testX, passagemId,'tree-predict.csv')
 
 #submissao Knn
+gerarSubmicoes(clf_KNN, testX, passagemId,'knn-predict.csv')
+
 # submissao do Random forets
 gerarSubmicoes(clfRF, testX, passagemId,'rf-predict.csv')
 
