@@ -21,6 +21,8 @@ from scipy.stats import randint
 
 from sklearn.neighbors import KNeighborsClassifier
 
+from sklearn.model_selection import GridSearchCV
+
 # In[]:
 # ignoirar warnming
 # import warnings filter
@@ -304,6 +306,12 @@ def buscarParametrosRand(clf,DadosX,DadosY,paramatros,inter,nomeClassificador):
     print("Melhores parametros encontrados %s para: %s" % (nomeClassificador, randCLF.best_params_))
     return randCLF
 
+def buscarParametrosGrid(clf,DadosX,DadosY,paramatros,nomeClassificador):
+    randCLF =  GridSearchCV(clf, paramatros)
+    randCLF.fit(DadosX,DadosY)
+    print("Melhores parametros encontrados %s para: %s" % (nomeClassificador, randCLF.best_params_))
+    return randCLF
+
 
 
 # In[19]:
@@ -347,10 +355,10 @@ Image("irisDT-RS.png")
 # In[ ]:
 # Knn
 clf_KNN = KNeighborsClassifier()
-paramatros = {"n_neighbors": randint(2,10)}
+paramatros = {"n_neighbors": range(2,10)}
 
 
-randKnn =  buscarParametrosRand(clf_KNN,X,y,paramatros,10,"KNN")
+randKnn =  buscarParametrosGrid(clf_KNN,X,y,paramatros,"KNN")
 clf_KNN = randKnn.best_estimator_
 
 # testar
