@@ -78,6 +78,7 @@ test  = pd.read_csv('test.csv')
 full_data = [train, test]
 
 
+
 # In[4]:
 
 #Identifica as características presentes
@@ -302,6 +303,8 @@ ResultadosClassficadores = {}
 X = full_X[0:train.shape[0]]
 y = titanic.Survived
 
+
+
 X_train, X_test, y_train, y_test = train_test_split(X , y, train_size = .75)
 
 clf = tree.DecisionTreeClassifier(criterion='gini', max_depth=3)
@@ -366,6 +369,7 @@ print("Teste naive bayes")
 gnb = GaussianNB()
 
 resultadoGNB = testarClasficador(gnb,X,y)
+gnb.fit(X,y)
 ResultadosClassficadores["naiveBayes"] = resultadoGNB
 
 
@@ -377,3 +381,30 @@ ResultadosClassficadores["naiveBayes"] = resultadoGNB
 # In[]:
 # Resumo dos resultados
 ResultadosClassficadores
+
+# In[]:
+# Gerar submicoes para a competicao
+
+def gerarSubmicoes(clf,dadosEntrada, id,arqSaida):
+    dadosPredicao = clf.predict(dadosEntrada)
+    
+    dados = zip(id,dadosPredicao)
+    #adicioanr o pasagem id
+
+    dadosCSV = pd.DataFrame(dados,columns={'PassengerId','Survived'})
+    
+    dadosCSV['Survived'] = dadosCSV['Survived'].astype(int)
+    dadosCSV.to_csv(arqSaida,index=False)
+
+
+    return dadosCSV
+
+# Recupera os dados de teste para se realizar a predicao
+dataBaseFull = pd.DataFrame(full_data)
+
+testX = full_X[train.shape[0]:]
+passagemId = test.ix[:,0]
+gerarSubmicoes(gnb, testX, passagemId,'gnb-predict.csv')
+
+
+#%%
