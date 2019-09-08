@@ -431,7 +431,7 @@ passagemId = test.ix[:,0]
 
 
 # submissao do Arvore de decisão
-gerarSubmicoes(clf, testX, passagemId,'tree-predict.csv')
+gerarSubmicoes(clfTree, testX, passagemId,'tree-predict.csv')
 
 #submissao Knn
 gerarSubmicoes(clf_KNN, testX, passagemId,'knn-predict.csv')
