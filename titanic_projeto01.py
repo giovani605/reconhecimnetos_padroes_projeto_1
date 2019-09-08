@@ -296,6 +296,14 @@ def testarClasficador(clf,DadosX,DadosY):
     print("Os teste resultaram em: ", valores)
     return mediaAcc
 
+# In[]:
+#func para randmonized search
+def buscarParametrosRand(clf,DadosX,DadosY,paramatros,inter,nomeClassificador):
+    randCLF =  RandomizedSearchCV(clf, paramatros, n_iter = inter)
+    randCLF.fit(DadosX,DadosY)
+    print("Melhores parametros encontrados %s para: %s" % (nomeClassificador, randCLF.best_params_))
+    return randCLF
+
 
 
 # In[19]:
@@ -333,13 +341,7 @@ with open('irisDT-RS.png', 'wb') as f:
 Image("irisDT-RS.png") 
 
 '''
-# In[]:
-#func para randmonized search
-def buscarParametrosRand(clf,DadosX,DadosY,paramatros,inter,nomeClassificador):
-    randCLF =  RandomizedSearchCV(clf, paramatros, n_iter = inter)
-    randCLF.fit(DadosX,DadosY)
-    print("Melhores parametros encontrados %s para: %s" % (nomeClassificador, randCLF.best_params_))
-    return randCLF
+
 
 
 # In[ ]:
