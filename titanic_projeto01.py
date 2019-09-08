@@ -19,7 +19,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.externals.six import StringIO
 from scipy.stats import randint
 
-
+# In[]:
+# ignoirar warnming
+# import warnings filter
+from warnings import simplefilter
+# ignore all future warnings
+simplefilter(action='ignore', category=FutureWarning)
 
 # %matplotlib inline
 # import numpy as np
@@ -296,20 +301,16 @@ def testarClasficador(clf,DadosX,DadosY):
 #A PARTIR DAQUI, COMEÇA O PROCESSO DE CLASSIFICAÇÃO!
 
 ResultadosClassficadores = {}
-
-# Arvore de decisão
-
 #A partir apenas das amostras do arquivo train.csv, cria a base de treinamento e teste.
 X = full_X[0:train.shape[0]]
 y = titanic.Survived
-
-
-
 X_train, X_test, y_train, y_test = train_test_split(X , y, train_size = .75)
 
-clf = tree.DecisionTreeClassifier(criterion='gini', max_depth=3)
-clf = clf.fit(X_train, y_train)
-preditor = clf.predict(X_test)
+# Arvore de decisão
+
+clfTree = tree.DecisionTreeClassifier(criterion='gini', max_depth=3)
+clfTree = clfTree.fit(X_train, y_train)
+preditor = clfTree.predict(X_test)
 
 
 
@@ -317,7 +318,7 @@ acc = sklearn.metrics.accuracy_score(y_test, preditor)
 acc
 
 
-a = tree.plot_tree(clf, feature_names=X.columns.values, class_names=['Dead', 'Survived'], max_depth = 3)
+a = tree.plot_tree(clfTree, feature_names=X.columns.values, class_names=['Dead', 'Survived'], max_depth = 3)
 
 # print da arvore
 '''
@@ -351,13 +352,15 @@ param_dist = {"criterion":["gini", "entropy"],
              "min_samples_leaf": randint(2, 6),
              "max_leaf_nodes": randint(6, 8)}
 
-clfRF =    RandomizedSearchCV(clf, param_dist, n_iter = 100)
-clfRF
+randRF =    RandomizedSearchCV(clfRF, param_dist, n_iter = 100)
+randRF.fit(X,y)
 
-
+print("Melhores parametros encontrados para Random florrests: ", randRF.best_params_)
+clfRF = randRF.best_estimator_
 # testar
 resultadoRandomForets = testarClasficador(clfRF, X,y)
 ResultadosClassficadores["randomForests"] = resultadoRandomForets
+
 
 
 
@@ -401,9 +404,19 @@ def gerarSubmicoes(clf,dadosEntrada, id,arqSaida):
 
 # Recupera os dados de teste para se realizar a predicao
 dataBaseFull = pd.DataFrame(full_data)
-
 testX = full_X[train.shape[0]:]
 passagemId = test.ix[:,0]
+
+
+
+# submissao do Arvore de decisão
+gerarSubmicoes(clf, testX, passagemId,'tree-predict.csv')
+
+#submissao Knn
+# submissao do Random forets
+gerarSubmicoes(clfRF, testX, passagemId,'rf-predict.csv')
+
+# submissao do Naive bayes
 gerarSubmicoes(gnb, testX, passagemId,'gnb-predict.csv')
 
 
