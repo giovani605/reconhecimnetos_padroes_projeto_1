@@ -355,7 +355,7 @@ Image("irisDT-RS.png")
 # In[ ]:
 # Knn
 clf_KNN = KNeighborsClassifier()
-paramatros = {"n_neighbors": range(2,10)}
+paramatros = {"n_neighbors": range(2,10), "weights": ['uniform','distance']}
 
 
 randKnn =  buscarParametrosGrid(clf_KNN,X,y,paramatros,"KNN")
@@ -426,7 +426,7 @@ def gerarSubmicoes(clf,dadosEntrada, id,arqSaida):
     dadosCSV = pd.DataFrame(dados,columns={'PassengerId','Survived'})
     
     dadosCSV['Survived'] = dadosCSV['Survived'].astype(int)
-    dadosCSV.to_csv(arqSaida,index=False)
+    dadosCSV.to_csv(arqSaida,index=False,float_format='%.f')
 
 
     return dadosCSV
@@ -435,7 +435,6 @@ def gerarSubmicoes(clf,dadosEntrada, id,arqSaida):
 dataBaseFull = pd.DataFrame(full_data)
 testX = full_X[train.shape[0]:]
 passagemId = test.ix[:,0]
-
 
 
 # submissao do Arvore de decisão
