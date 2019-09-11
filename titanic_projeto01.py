@@ -164,9 +164,8 @@ print(embarked.head())
 pclass = pd.get_dummies(full.Pclass , prefix='Pclass' )
 print(pclass.head())
 
-
-# In[13]:
-
+#In[]
+'''
 #Muitos algoritmos requerem que todas as amostras possuam valores atribuídos para todas as características. 
 #No caso de dados faltantes, uma possibilidade é preenchê-los com o valor médio das demais observações.
 
@@ -180,6 +179,31 @@ imputed['Age'] = full.Age.fillna(full.Age.mean())
 imputed['Fare'] = full.Fare.fillna(full.Fare.mean())
 
 imputed.head()
+'''
+
+# In[]
+# Age em categorias
+
+#Cria o dataset
+imputed = pd.DataFrame()
+age = pd.DataFrame()
+#Preenche os valores que faltam em "Age" com a média das demais idades
+age['Age'] = full.Age.fillna(full.Age.mean())
+
+
+#Cria nova características para representar o tipo de família 
+imputed['Age_kids'] = age['Age'].map(lambda s : 1 if s < 16 else 0)
+imputed['Age_adulto']  = age['Age'] .map(lambda s : 1 if 16 <= s < 32 else 0)
+imputed['Age_velho']  = age['Age'].map(lambda s : 1 if 32 <= s <= 50 else 0)
+imputed['Age_Acident']  = age['Age'].map(lambda s : 1 if  50 < s else 0)
+
+
+
+#O mesmo para "Fare"
+imputed['Fare'] = full.Fare.fillna(full.Fare.mean())
+
+imputed.head()
+
 
 
 # In[14]:
@@ -290,11 +314,14 @@ full_X.head()
 # In[]:
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import classification_report
 import numpy
 def testarClasficador(clf,DadosX,DadosY):
     valores = cross_val_score(clf, DadosX, DadosY, cv = 5)
     mediaAcc = numpy.mean(valores)
     print("A Media do clf foi: ", mediaAcc)
+    print("A Desvio padrao foi: ", numpy.std(valores))
+    print("A Variancia foi: ", numpy.var(valores))
     print("Os teste resultaram em: ", valores)
     return mediaAcc
 
@@ -378,10 +405,11 @@ clfRF = RandomForestClassifier()
 param_dist = {"criterion":["gini", "entropy"],
              "min_samples_split": randint(6, 10),
              "max_depth": randint (8, 10),
-             "min_samples_leaf": randint(2, 6),
-             "max_leaf_nodes": randint(6, 8)}
+             "min_samples_leaf":randint(2, 6),
+             "max_leaf_nodes":randint(6, 8)}
 
-randRF =    RandomizedSearchCV(clfRF, param_dist, n_iter = 100)
+
+randRF =  RandomizedSearchCV(clfRF, param_dist, n_iter = 100)
 randRF.fit(X,y)
 
 print("Melhores parametros encontrados para Random florrests: ", randRF.best_params_)
@@ -450,4 +478,5 @@ gerarSubmicoes(clfRF, testX, passagemId,'rf-predict.csv')
 gerarSubmicoes(gnb, testX, passagemId,'gnb-predict.csv')
 
 
-#%%
+# In[]
+
