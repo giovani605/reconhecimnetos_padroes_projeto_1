@@ -479,4 +479,15 @@ gerarSubmicoes(gnb, testX, passagemId,'gnb-predict.csv')
 
 
 # In[]
+#PCA
+from sklearn.decomposition import PCA
 
+pca = PCA(n_components=2)
+pca.fit(X)  
+
+
+print(pca.explained_variance_ratio_)  
+
+print(pca.singular_values_)  
+
+#%%
