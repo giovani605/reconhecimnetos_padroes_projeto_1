@@ -481,22 +481,24 @@ gerarSubmicoes(gnb, testX, passagemId,'gnb-predict.csv')
 # In[]
 #PCA
 from sklearn.decomposition import PCA
+for i in range(5,10):
+    print("testando reducao com %s features",i)
+    pca = PCA(n_components=i)
+    pca.fit(X)  
 
-pca = PCA(n_components=2)
-pca.fit(X)  
-
-pca2 = PCA(n_components=2)
-pca2.fit(testX)  
-
-
-gnb = GaussianNB()
-gnb.fit(X,y)
+    pca2 = PCA(n_components=i)
+    pca2.fit(testX)  
 
 
-print(pca.explained_variance_ratio_)  
+    gnb = GaussianNB()
+    x1 = pca.transform(X)
+    gnb.fit(x1,y)
 
-print(pca.singular_values_)  
 
+    print(pca.explained_variance_ratio_)  
+
+    print(pca.singular_values_)  
+    testarClasficador(gnb,x1,y)
 
 
 
