@@ -485,9 +485,19 @@ from sklearn.decomposition import PCA
 pca = PCA(n_components=2)
 pca.fit(X)  
 
+pca2 = PCA(n_components=2)
+pca2.fit(testX)  
+
+
+gnb = GaussianNB()
+gnb.fit(X,y)
+
 
 print(pca.explained_variance_ratio_)  
 
 print(pca.singular_values_)  
+
+
+
 
 #%%
