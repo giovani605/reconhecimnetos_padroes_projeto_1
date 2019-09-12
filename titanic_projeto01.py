@@ -156,10 +156,28 @@ sex = pd.Series(np.where(full.Sex=='male', 1, 0), name = 'Sex')
 
 
 # In[12]:
-
+'''
 #Cria uma nova variável para cada valor único de "Embarked" (no caso, Embarked_C  Embarked_Q  Embarked_S)
 embarked = pd.get_dummies(full.Embarked, prefix='Embarked')
 print(embarked.head())
+
+'''
+#dadosEmbarked
+#for row in full:
+#    dadosEmbarked += row['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+#dadosEmbarked
+
+embarked = full['Embarked'].map( {np.nan:0, 'S': 0, 'C': 1, 'Q': 2} )
+embarked.astype(int)
+embarked.unique()
+#embarked
+#Cria uma nova variável para cada valor único de "Embarked" (no caso, Embarked_C  Embarked_Q  Embarked_S)
+#embarked = pd.get_dummies(full.Embarked, prefix='Embarked')
+
+
+
+
+#In[]:
 #Cria uma nova variável para cada valor único de "Pclass"
 pclass = pd.get_dummies(full.Pclass , prefix='Pclass' )
 print(pclass.head())
@@ -501,5 +519,53 @@ for i in range(5,10):
     testarClasficador(gnb,x1,y)
 
 
+
+#%%
+#In:[]
+# Procurando melhores features
+from sklearn.feature_selection import SelectKBest,chi2
+import pandas as pd
+
+clfKBest = SelectKBest(score_func=chi2, k='all')
+clfKBest.fit(X, y)
+
+featureSelect = pd.DataFrame(clfKBest.scores_)
+featureSelect
+
+dfcolumns = pd.DataFrame(X.columns)
+featureScores = pd.concat([dfcolumns,featureSelect],axis=1)
+
+featureScores.columns = ['Specs','Score']  #naming the dataframe columns
+featureScores.sort_values(by=['Score'])
+
+
+classKbest = SelectKBest(score_func=chi2, k=10)
+classKbest.fit(X,y)
+X_new = classKbest.transform(X)
+
+X_teste_new = classKbest.transform(testX)
+
+print("Teste Random Forest parametros cortados")
+clfRF2 = RandomForestClassifier()
+
+# Procurar por parametros otimos
+param_dist = {"criterion":["gini", "entropy"],
+             "min_samples_split": randint(6, 10),
+             "max_depth": randint (8, 10),
+             "min_samples_leaf":randint(2, 6),
+             "max_leaf_nodes":randint(6, 8)}
+
+
+randRF2 =  RandomizedSearchCV(clfRF2, param_dist, n_iter = 100)
+randRF2.fit(X_new,y)
+
+print("Melhores parametros encontrados para Random florrests: ", randRF.best_params_)
+clfRF2 = randRF2.best_estimator_
+# testar
+resultadoRandomForets = testarClasficador(clfRF2, X_new,y)
+ResultadosClassficadores["randomForestsParametrosCortados"] = resultadoRandomForets
+
+gerarSubmicoes(clfRF2, X_teste_new, passagemId,'rf-predict-corte.csv')
+featureScores
 
 #%%
