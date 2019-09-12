@@ -206,20 +206,29 @@ imputed.head()
 imputed = pd.DataFrame()
 age = pd.DataFrame()
 #Preenche os valores que faltam em "Age" com a média das demais idades
-age['Age'] = full.Age.fillna(full.Age.mean())
-
+imputed['Age'] = full.Age.fillna(full.Age.mean())
+    
+imputed.loc[ imputed['Age'] <= 12, 'Age'] = 0
+imputed.loc[(imputed['Age'] > 12) & (imputed['Age'] <= 19), 'Age'] = 1
+imputed.loc[(imputed['Age'] > 19) & (imputed['Age'] <= 60), 'Age'] = 2
+# imputed.loc[(imputed['Age'] > 48) & (imputed['Age'] <= 64), 'Age'] = 3
+imputed.loc[ imputed['Age'] > 60, 'Age'] = 3
 
 #Cria nova características para representar o tipo de família 
-imputed['Age_kids'] = age['Age'].map(lambda s : 1 if s < 16 else 0)
-imputed['Age_adulto']  = age['Age'] .map(lambda s : 1 if 16 <= s < 32 else 0)
-imputed['Age_velho']  = age['Age'].map(lambda s : 1 if 32 <= s <= 50 else 0)
-imputed['Age_Acident']  = age['Age'].map(lambda s : 1 if  50 < s else 0)
+# imputed['Age'] = age['Age'].map(lambda s : 1 if s <= 12, s : 2 if 12 < s <=19 s : 3 if 19 < s <= 60, s : 4 if 60 < s)
+# imputed['Age_adulto']  = age['Age'] .map(lambda s : 1 if 16 <= s < 32 else 0)
+# imputed['Age_velho']  = age['Age'].map(lambda s : 1 if 32 <= s <= 50 else 0)
+# imputed['Age_Acident']  = age['Age'].map(lambda s : 1 if  50 < s else 0)
 
 
 
 #O mesmo para "Fare"
 imputed['Fare'] = full.Fare.fillna(full.Fare.mean())
-
+imputed.loc[ imputed['Fare'] <= 7.91, 'Fare'] = 0
+imputed.loc[(imputed['Fare'] > 7.91) & (imputed['Fare'] <= 14.454), 'Fare'] = 1
+imputed.loc[(imputed['Fare'] > 14.454) & (imputed['Fare'] <= 31), 'Fare'] = 2
+imputed.loc[ imputed['Fare'] > 31, 'Fare'] = 3
+imputed['Fare'] = imputed['Fare'].astype(int)
 imputed.head()
 
 
@@ -325,7 +334,7 @@ family.head()
 # In[18]:
 
 #Seleciona as características que serão incluídas no descritor (vetor de características)
-full_X = pd.concat([imputed, embarked, family, sex, title] , axis=1)
+full_X = pd.concat([imputed, embarked, family, sex, title, pclass] , axis=1)
 full_X.head()
 
 
